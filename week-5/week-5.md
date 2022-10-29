@@ -114,3 +114,276 @@ api yang menerapkan standar arsitektur milik REST disebut RESTful API
 
     pada tipe response 2xx (tandanya suatu request berhasil), pada tipe response 3xx (tandanya suatu request redirecting), pada tipe response 4xx (tandanya suatu request tidak berhasil karena client-side error), pada tipe response 5xx (tandanya suatu request tidak berhasil karena server-side error),
 
+&nbsp;
+## **Intro Node JS**
+
+<div align="justify"> JavaScript runtime atau tempat menjalankan dan mengeksekusi kode yang dibangun pada JavaScript engine bernama V8 di miliki chrome. pada node js dapat dibuat command line tool, web app, REST API dan mobile app
+
+### **Node JS Architecture**
+
+- **Single Thread**, thread adalah setiap unit yang mampu mengeksekusi kode. Javascript menggunakan konsep single thread, yang berarti hanya memiliki satu tumpukan panggilan yang digunakan untuk menjalankan program dengan menggunakan call stack untuk manajememnnya
+- **Even Loop**, javascript dapat menggunakan multi thread yang terdapat enevt queue yang berguna sebagai penampung ketika terdapat perintah baru yang akan dieksekusi. Event loop akan memfasilitasi kondisi ini, event loop akan 
+memeriksa terus menerus, ketika antrian kosong di call stack maka akan menambah antrian baru dari event queue sampai semua perintah selesai di eksekusi.
+- **Server Side Scripting**, untuk menampilkan hasil eksekusi javascript biasanya hanya bisa di browser, dengan Node JS dapat menjalankan javascript di server side dengan terminal command line perintah "node"
+
+### **Javascript pada Node JS**
+
+sintaks atau code pada bahasa pemrograman Javascript yang sering ditemui pada saat menggunakan Node JS :
+
+- **Arrow Expression**
+
+    ```javascript
+    // function biasa tanpa arrow expression
+    function panjangArray(nilai1, nilai2) {
+        return nilai1.length + nilai2.length
+    }
+    // function dengan arrow expression
+    let panjangArray = (nilai1, nilai2) => return nilai1.length + nilai2.length
+    ```
+
+- **Asynchronous**,  mengeksekusi code tanpa berurutan dengan cara “skip” code dan mengeksekusi code selanjutnya dan mencegah blocking.
+
+    ```javascript
+    console.log("welcome")
+    setTimeout(() => { console.log('on my journal')}, 200) //tunda selama 200 milisecond
+    console.log("viewer")
+    /*
+    output :
+    welcome
+    viewer
+    on my journal */
+    ```
+
+- **JSON**,  Javascript Object Notation untuk menyimpan dan mengirim data menggunakan object di JS. dan bahasa pemrograman lain
+
+    ```javascript
+    {"items" : [
+        {"productName" : "fishes", "weight" : "50kg"},
+        {"productName" : "shrimps", "weight" : "10kg"}
+    ]}
+    ```
+### **Build In Node JS for Back End**
+
+- **Console**, module bawaan dari javascript yang ada di node JS untuk digunakan sebagai debug atau menampilkan code secara interface
+
+    ```javascript
+    // running lewat terminal tanpa perlu buat file html
+    console.log('hai, melati')
+    console.log(2*8)
+    ```
+
+- **Process**, modules yang digunakan untuk 
+menampilkan dan mengontrol prosess Node JS yang sedang dijalankan, gunanya untuk konfigurasi, misal menambahkan file .env dan menyimpan data konfigurasi yang tidak bisa dilihat umum
+
+    ```
+    //pembuatan file .env untuk membuat variabel environment sendiri
+    //pada file .env terdapat code :
+    CLIENT_URL = http://localhost:8500 
+    ```
+
+    ```javascript
+    // import
+    const { env } = require ("process");
+    // atau import process from "process"
+    const process = require ("process")
+    // misal cukup buat global variabel baru tanpa import
+    process.env.TOKEN_KEY = "key-token"
+
+    console.log(process.env);
+    console.log(env);
+    // pemanggilan variabel CLIENT_URL 
+    console.log(process.env.CLIENT_URL) //OUTPUT : undefined
+    //output undefined karena belum mempunya library tambahan untuk membaca variabel yang ada pada file .env
+
+    //pemanggilan tanpa import 
+    process.env.TOKEN_KEY = "kf-token"
+    console.log(process.env.TOKEN_KEY); //OUTPUT : key-token
+    ```
+
+
+- **OS**, menyediakan informasi mengenai sistem operasi desktop device yang digunakan
+
+    ```javascript
+    // import
+    const OS = require('os')
+    // mengetahui versi OS dan rilis
+    console.log(OS.version())
+    console.log(OS.release())
+
+    //ambil alamat IP  untuk lokal IP
+    console.log(OS.networkInterfaces());
+
+    //ambil platform contoh "win32"
+    console.log(OS.platform());
+    ```
+
+    ![node-os](./img-src/node-os.png)
+
+
+- **FS**, membantu berinteraksi dengan file yang ada diluar code. FS paling sering digunakan untuk membaca file dengan ekstensi .txt, .csv, dan .json
+
+    ```javascript
+    const { fs } = require("fs");
+
+    // Membaca sebuah file
+    fs.readFile(".env", (err, data) => {
+        // data yang di tampilkan bentuk binary, ubah ke string
+        console.log(data.toString())
+    })
+    // output : CLIENT_URL = http://localhost:8500 
+
+    // hapus atau atur isi filenya ada berapa data/kata
+    fs.truncate(".env", 2, () => {
+        console.log("isi file .env sisa 2 kata")
+    })
+    // output (pada file .env) : CL
+    ```
+
+    ![node-os](./img-src/node-os.png)
+
+- **Util**, alat bantu / utilities untuk 
+mendukung kebutuhan internal API di Node JS
+
+    ```javascript
+    // tujuan lebih untuk debugging
+    //impor
+    const util = require('util')
+
+    // %s untuk string, %d untuk number
+    // tujuan untuk formating dan print
+    console.log(util.format('%s %d', "jasmine", 19))
+
+    //atau dipisah dengan buat variabel sendiri
+    const nama = "jasmine"
+    const umur = 19
+
+    console.log(util.format('%s %d', nama, umur))
+
+    /*
+    $ node util
+    jasmine 19
+    */
+    ```
+
+- **Events**
+
+    ```javascript
+    const EventEmitter = require("events")
+
+    // proses buat instansi 
+    const event = new EventEmitter()
+
+    // dibawah ini biasanya digunakan pada sistem live chat untuk lempar2an event agar dinamis dan time stream
+    //membaca/mendengar event
+    event.on('connected', () => {
+        console.log('user connected');
+    })
+    // memancarkan/ yang bicara evemt
+    event.emit('connected')
+
+    // contoh 2
+    //membaca/mendengar event
+    event.on('connected', (userName) => {
+        console.log('user connected', userName);
+    })
+    // memancarkan/ yang bicara evemt
+    event.emit('connected', "Jasmine")
+
+    // contoh 3
+    //membaca/mendengar event
+    event.on('connected', (params) => {
+        console.log('user connected', params.userName);
+    })
+    // memancarkan/ yang bicara evemt
+    event.emit('connected', {
+        userName: "jasmine"
+    })
+    ```
+
+### **Library pada NPM**
+
+- **Inisialisasi**, inisialisasi npm ``` $ npm init ``` dan isi input untuk detail package 
+
+    ![npm-init](./img-src/npm-init.png)
+
+- **Package.JSON**, Maka akan ada file baru bernama package.json, dengan isinya sebagai berikut :
+
+    ```javascript
+    {
+        "name": "js",
+        "version": "1.0.0",
+        "description": "latihan node js",
+        "main": "app.js",
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1"
+        },
+        "author": "Jasmine",
+        "license": "ISC"
+    }
+    ```
+
+- **Instalasi** instal library via terminal ```npm install dotenv``` atau ```npm i dotenv``` dienter dan akan terinstalasi sebagai berikut di terminal :
+
+    ```
+    added 1 package, and audited 2 packages in 5s
+
+    found 0 vulnerabilities
+    ```
+    jika berhasil terinstall maka akan ada folder berikut :
+    &nbsp;
+    ![node-modules](./img-src/node-modules.png)
+
+    ```javascript
+    //package.json
+    {
+        "name": "js",
+        "version": "1.0.0",
+        "description": "latihan node js",
+        "main": "app.js",
+        "scripts": {
+            "test": "node events"
+        },
+        "author": "Jasmine",
+        "license": "ISC",
+        // library yang terinstal akan disimpan pada dependencies
+        "dependencies": {
+            "dotenv": "^16.0.3"
+        }
+    }
+    ```
+
+- **node dengan library npm**, contoh pada file process.js dengan build in process dimana mengakses variabel CLIENT_URL yang ada pada file .env
+
+    ```javascript
+    require('dotenv').config();
+    console.log(process.env.CLIENT_URL) //OUTPUT : http://localhost:8500
+    ```
+
+### **Node JS Web Server**
+<div align="justify">built-in modul yang disebut HTTP, memungkinkan Node JS mentransfer data melalui Hyper Text Transfer Protocol (HTTP) serta dapat membuat server HTTP yang mendengarkan port server dan memberikan respons kembali ke klien
+
+```javascript
+const http = require('http');
+
+//membuat server
+// create server menggunakan callback
+// request : apa yang diminta user
+// response : balasan dari request
+http.createServer((request, response) => {
+    response.write("alohaa, welcome!")
+    //mengakhiri eksekusi, apabila tidak diberikan reponse.end() maka status port di browser akan loading terus
+    response.end()
+    //fungsi request pada create server contohnya query : localhost:8080/user?nama=jasmine
+}).listen(8080, () => {
+    //port mana yg akan didengar/buat & diperlukan pengecekan port apakah sedang dipakai agar tidak bentrok
+    console.log("server is running at http://localhost:8080")
+})
+```
+pada terminal :
+
+```
+$ node app
+
+server is running at http://localhost:8080
+```
+![node-web-server](./img-src/node-web-server.png)
