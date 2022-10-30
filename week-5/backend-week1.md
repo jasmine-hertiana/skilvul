@@ -387,3 +387,224 @@ $ node app
 server is running at http://localhost:8080
 ```
 ![node-web-server](./img-src/node-web-server.png)
+
+&nbsp;
+
+## **Express JS**
+
+<div align="justify"> Framework untuk membuat Back End Application atau web server dibangun dari node js dan bersifat open source, membantu pengelolaan aliran data dari server ke aplikasi/client. Sebelumnya diketahui untuk memberikan endpoint pada web server berikut kode (manually):
+
+```javascript
+const http = require('http');
+
+//membuat server
+// create server menggunakan callback
+// request : apa yang diminta user
+// response : balasan dari request
+http.createServer((request, response) => {
+    // untuk memberikan endpoint
+    if (request.url === "/stars" ) {
+        response.write("you are stars")
+    } else {
+        response.write("alohaa, welcome!")
+    }
+    //mengakhiri eksekusi, apabila tidak diberikan reponse.end() maka status port di browser akan loading terus
+    response.end()
+    //fungsi request pada create server contohnya query : localhost:8080/user?nama=jasmine
+}).listen(8080, () => {
+    //port mana yg akan didengar/buat & diperlukan pengecekan port apakah sedang dipakai agar tidak bentrok
+    console.log("server is running at http://localhost:8080")
+})
+```
+![url-nodejs](./img-src/url-nodejs.png)
+&nbsp;
+- **install express**
+    ```
+    $ npm i express
+
+    added 57 packages, and audited 58 packages in 17s
+
+    7 packages are looking for funding
+    run `npm fund` for details
+
+    found 0 vulnerabilities
+    ```
+    pada package json maka akan bertambah package baru
+    ```javascript
+    {
+        "dependencies": {
+            "express": "^4.18.2"
+        }
+    }
+    ```
+
+### **Routing**
+pembuatan endpoint seperti diatas dapat menggunakan framework express js yang merupakan salah satu package pada npm
+
+```javascript
+// memanggil express package
+const express = require('express')
+// membuat variabel yang menyimpan app express
+const app = express()
+
+// build in yang dapat digunakan misal (get, put, post, dll)
+app.get("/stars", (request, response) => {
+    // menggunakan .send pengganti .write
+    response.send("You are my stars") // send bisa menggunakan tipe data macam2, sedangkan write hanya menampilkan teks
+})
+app.listen(8080)
+```
+
+apabila ada perubahan yang sudah ter-save dan langsung terubah di browser apabila di refresh diperlukan package nodemon (secara otomatis rerun web server ketika ada perubahan)
+
+- instalasi nodemon ```npm i --save-dev nodemon``` menggunakan --save-dev sebagai penanda misal ada beberapa package yang tidak dipakai di code hanya di pakai di terminal. oleh karena itu simpan di dev
+    ```javascript
+    //package json file
+    {
+        //menambahkan script untuk menjalankan file app.js
+        "scripts" : {
+            "start": "node app"
+            // penamaan dev untuk restart di development aja
+            "dev": "nodemon app.js"
+        },
+        "dependencies": {
+            "express": "^4.18.2"
+        },
+        "devDependencies": {
+            "nodemon": "^2.0.20"
+        }
+    }
+    ```
+- di terminal ```$ npm run dev``` maka akan menjalankan file app.js, misal isinya diubah :
+
+    ```javascript
+    const express = require('express')
+    const app = express()
+
+    app.get("/stars", (request, response) => {
+
+        response.send("You are my only first stars") 
+    })
+    app.listen(8080)
+    ```
+    maka akan terubah hanya apabila browser di refresh :
+    ![nodemon](./img-src/nodemon.png)
+
+contoh endpoint dengan hasil response tipe data array of object :
+```javascript
+const express = require('express')
+const app = express()
+const stars = [
+    {
+        id: 1,
+        nama: "Sirius",
+        ket: "bintang paling terang"
+    },
+    {
+        id: 2,
+        nama: "Canopus",
+        ket: "bintang paling terang kedua"
+    }
+]
+app.get("/stars", (request, response) => {
+    response.send(stars) // untuk menampilkan panggil nama variabelnya
+})
+app.listen(8080)
+```
+![get-arrayofobject](./img-src/get-arrayofobject.png)
+
+### **Middleware**
+<div align="justify">function yang menjadi penengah atau bagian penyaring sebelum masuk response web server dari request bisa dikelola dan diakses melalui middleware ke controller action. contoh menggunakan post dengan middleware :
+
+```javascript
+const express = require('express')
+const app = express()
+
+//menggunakan middleware
+// menggunakan json untuk parsing request yang masuk
+// app.use ditempatkan global dan semua controller dapat menggunakan middleware use
+app.use(express.json())
+
+const stars = [
+    {
+        id: 1,
+        nama: "Sirius",
+        ket: "bintang paling terang"
+    },
+    {
+        id: 2,
+        nama: "Canopus",
+        ket: "bintang paling terang kedua"
+    }
+]
+app.get("/stars", (request, response) => {
+    response.send(stars) // untuk menampilkan panggil nama variabelnya
+})
+
+// dapat menggunakan endpoint yang sama namun method berbeda (dan dapat dianggap restful)
+app.post("/stars", (request, response) => {
+    // inputan user dari request atau permintaan ata kiriman client masuk ke request
+    const data = request.body;
+    //menambahkan data baru ke array
+    stars.push(data)
+    console.log(data)
+    // chaining status response (menggunakan 201 created)
+    // menggunakan nested dengan .send
+    response.status(201).send("posted")
+    //atau bisa menambahkan message
+    response.send({
+        message: "successfully add data"
+    })
+})
+app.listen(8080)
+```
+![post](./img-src/post.png)
+&nbsp;
+maka akan tambah data arraynya saat menggunakan get : 
+![after-post](./img-src/after-post.png)
+
+
+middleware function secara lokal
+
+```javascript
+const express = require('express')
+const app = express()
+
+// membuat middleware function
+const logging = (request, response, next) => {
+    console.log('bonjour')
+    // next agar dapat dilanjut ke step berikutnya
+    next()
+}
+// panggil dengan app.use agar variabel logging dapat diakses secara global
+app.use(logging)
+
+// middleware function
+const check = (request, response, next) => {
+    console.log('validated user');
+    next()
+}
+
+// panggil didalam controller agar variabel check dapat diakses secara lokal untuk controller tsb
+app.get("/users", check, (request, response) => {
+    console.log('hi user')
+    response.send([
+        {
+            nama: "jasmine"
+        }
+    ])
+})
+app.listen(8080)
+/*
+output :
+bonjour
+validated user
+hi user
+*/
+```
+
+
+
+
+
+
