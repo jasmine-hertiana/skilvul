@@ -603,6 +603,65 @@ hi user
 */
 ```
 
+&nbsp;
+
+## **Design Database With MySQL**
+
+<div align="justify"> Langkah dalam desain  database, contoh kasus layanan perpustakaan :
+
+### **Menentukan Entity**
+
+entity atau tabel dalam sebuah database biasanya merujuk penamannya dengan noun baik mengenai peoples, things, events, locations. entity yang dibutuhkan pada perpustakaan :
+- Petugas
+- Anggota
+- Buku
+- Rak
+- Peminjaman
+- Pengembalian
+
+### **Menentukan Attributes dari Entity**
+
+Attribute layaknya kolom pada suatu tabel, menentukan attribute apa saja yang akan datanya disimpan dalam sebuah entity, contoh :
+- tabel petugas membutuhkan attribute : id petugas, nama petugas, jabatan petugas, dan data-data lainnya petugas tsb.
+
+### **Membuat Rancangan Entity**
+
+- **Petugas Entity**
+
+    ![entity-petugas](./img-src/entity-petugas.png)
+- **Anggota Entity**
+
+    ![entity-anggota](./img-src/entity-anggota.png)
+- **Buku Entity**
+
+    ![entity-buku](./img-src/entity-buku.png)
+- **Rak Entity**
+
+    ![entity-rak](./img-src/entity-rak.png)
+- **Peminjaman Entity**
+
+    ![entity-peminjaman](./img-src/entity-peminjaman.png)
+- **Pengembalian Entity**
+
+    ![entity-pengembalian](./img-src/entity-pengembalian.png)
+
+### **Menentukan Relasi antar Entity**
+
+- **Relasi Buku dan Rak**, 1 rak memiliki banyak buku, relationshipnya adalah one to many
+
+    ![buku-rak](./img-src/buku-rak.png)
+
+- **Relasi Peminjaman** satu anggota dapat melakukan banyak pinjaman (one to many), satu petugas dapat mengurus banyak pinjaman (one to many), satu buku dapat memiliki kondisi sering/banyak dipinjam (one to many)
+
+    ![pinjaman](./img-src/pinjaman.png)
+
+- **Relasi Pengembalian** satu anggota dapat melakukan banyak pengembalian  (one to many), satu petugas dapat mengurus banyak pengembalian (one to many), satu buku dapat memiliki kondisi sering/banyak dikembalikan (one to many)
+
+    ![pengembalian](./img-src/pengembalian.png)
+
+### **Relationship Entity secara keseluruhan**
+
+![all-relation](./img-src/all-relation.png)
 
 
 
