@@ -289,5 +289,354 @@
     2 rows in set (0.00 sec)
     ```
 
+&nbsp;
+## **MySQL Lanjutan**
+### **Menentukan Relasi antar Entity / Tabel**
+<div align='justify'>sebuah studi kasus sederhana layanan perpustakaan dimana memiliki entity Buku, Anggota, dan Rak. 
+
+![relasi-erd1](./img-src/relasi-erd1.png)
+
+- 1 buku ditempatkan di 1 rak, sebaliknya 1 rak dapat ditempatkan banyak buku. Relasi nya `one to many` atau `many to one`
+- 1 anggota dapat meminjam banyak buku, sebaliknya 1 buku dapat dipinjam beberapa / berulang kali oleh beberapa anggota. Relasi nya `Many to Many`
+- Relasi antara anggota dan buku (meminjam) dapat menjadi entity baru, yaitu entity peminjaman, seperti berikut :
+
+![relasi-erd2](./img-src/relasi-erd2.png)
+
+- warna `merah` adalah `primary key`. warna `biru` adalah `foreign key`
+- relasi antar anggota dan buku yang tadinya `Many to Many`, karena adanya entity baru yang asalnya dari relation meminjam menjadi entity peminjaman. relasi anggota dengan peminjaman adalah `one to many` sama halnya relasi buku dengan peminjaman.
+
+
+### **Normalisasi**
+<div align='justify'>Teknik mengelompokkan dan mengorganisasikan atribut/kolom/field data sehingga terbentuk suatu entitas, yang terhindar dari anomali. 
+
+- **Tujuan :**
+    - terciptanya non-redundan data pada suatu database
+    - efisien dalam adanya perubahan struktur tabel/entity suatu database
+    - meminimalisir dampak apabila ada perubahan struktur tabel/entity suatu database.
+
+- **Dampak TIDAK menggunakan Normalisasi :**
+    - INSERT Anomali : tidak dapat memasukkan beberapa data secara langsung
+    - DELETE Anomali : Penhapusan data tidak efektif dan tidak sesuai ekspektasi
+    - UPDATE Anomali : data yang diubah terjadi inkonsistensi dalam database dan tidak efektif serta tidak sesuai ekspektasi.
+
+- **Bentuk Umum Normalisasi :**
+    - **1NF**. Dimana Setiap kolom bernilai tunggal (single value), memiliki nama yang unik. untuk menghilangkan adanya data ganda atau multiple value pada atribut sebuah entity.
+    - **2NF**. Dimana sudah berbentuk 1NF, subset data yang terdapat pada entity dihapus dan diberikan aatribut terpisah.
+    - **3NF**. Dimana seluruh field/atribut/kolom yang tidak ada relasi atau hubungan dengan primary key dihilangkan. dan tidak adanya ketergantungan transitif, dimana suatu kolom tergantung dengan kolom lain (selain primary key)
+
+### **Query MySQL Tingkat Lanjut**
+<div align='justify'> menyiapkan tabel yang sudah memiliki atribut dan record :
+
+```
+mysql> select * from buku;
++---------+--------------------------------+--------+------------+
+| id_buku | judul_buku                     | id_rak | harga_buku |
++---------+--------------------------------+--------+------------+
+|       1 | Udah Putusin Aja               | H      |      55000 |
+|       2 | How to make aesthetic painting | S      |      43000 |
+|       3 | How to make gorgeous art       | S      |      67000 |
+|       4 | accounting intermediate        | P      |     105000 |
++---------+--------------------------------+--------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM anggota;
++------------+------------------+---------------+
+| id_anggota | nama_anggota     | lokasi        |
++------------+------------------+---------------+
+|          1 | jasmine hertiana | Tambun        |
+|          2 | atika dwi        | Griya asri    |
+|          3 | regy aprilia     | Jalan aries   |
+|          4 | randomi personi  | Planet Bekasi |
++------------+------------------+---------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from rak;
++--------+------------+--------------------+
+| id_rak | nama_rak   | lokasi             |
++--------+------------+--------------------+
+| H      | Hiburan    | Baris 5 Tenggara   |
+| S      | Seni       | Baris 4 Barat Laut |
+| P      | Pendidikan | Baris 1 Timur Laut |
++--------+------------+--------------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from peminjaman;
++-----------+----------------+------------+---------+
+| id_pinjam | tanggal_pinjam | id_anggota | id_buku |
++-----------+----------------+------------+---------+
+|         1 | 2022-03-24     |          2 |       4 |
+|         2 | 2022-10-25     |          2 |       3 |
+|         3 | 2022-10-01     |          1 |       2 |
+|         4 | 2022-10-21     |          3 |       3 |
++-----------+----------------+------------+---------+
+4 rows in set (0.00 sec)
+```
+
+- ### **Join Multiple Tables**
+    ambil records dari dua atau lebih table database yang memiliki hubungan atau relasi, dan ditampilkan dalam satu set data.
+
+    - **Inner Join**, semua baris diambil dari kedua tabel yang saling terelasi yang akan di JOIN selama masing kolom cocok dengan kondisinya
+
+        ```
+        mysql> SELECT * FROM buku INNER JOIN rak ON buku.id_rak = rak.id_rak;
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        | id_buku | judul_buku                     | id_rak | harga_buku | id_rak | nama_rak   | lokasi             |
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        |       1 | Udah Putusin Aja               | H      |      55000 | H      | Hiburan    | Baris 5 Tenggara   |
+        |       2 | How to make aesthetic painting | S      |      43000 | S      | Seni       | Baris 4 Barat Laut |
+        |       3 | How to make gorgeous art       | S      |      67000 | S      | Seni       | Baris 4 Barat Laut |
+        |       4 | accounting intermediate        | P      |     105000 | P      | Pendidikan | Baris 1 Timur Laut |
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        4 rows in set (0.01 sec)
+
+        mysql> SELECT * FROM peminjaman INNER JOIN buku ON peminjaman.id_buku = buku.id_buku;
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        | id_pinjam | tanggal_pinjam | id_anggota | id_buku | id_buku | judul_buku                     | id_rak | harga_buku |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        |         1 | 2022-03-24     |          2 |       4 |       4 | accounting intermediate        | P      |     105000 |
+        |         2 | 2022-10-25     |          2 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        |         3 | 2022-10-01     |          1 |       2 |       2 | How to make aesthetic painting | S      |      43000 |
+        |         4 | 2022-10-21     |          3 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        4 rows in set (0.00 sec)
+
+        mysql> SELECT * FROM peminjaman INNER JOIN anggota ON peminjaman.id_anggota = anggota.id_anggota;
+        +-----------+----------------+------------+---------+------------+------------------+
+        | id_pinjam | tanggal_pinjam | id_anggota | id_buku | id_anggota | nama_anggota     |
+        +-----------+----------------+------------+---------+------------+------------------+
+        |         1 | 2022-03-24     |          2 |       4 |          2 | atika dwi        |
+        |         2 | 2022-10-25     |          2 |       3 |          2 | atika dwi        |
+        |         3 | 2022-10-01     |          1 |       2 |          1 | jasmine hertiana |
+        |         4 | 2022-10-21     |          3 |       3 |          3 | regy aprilia     |
+        +-----------+----------------+------------+---------+------------+------------------+
+        4 rows in set (0.00 sec)
+        ```
+
+    - **Left Join**, semua record data dari entity/tabel disisi kiri JOIN yang akan dipilih, jika record dari tabel kiri tidak punya record cocok maka tabel join kanan, tetap ada namun data nya null.
+
+        ```
+        mysql> SELECT * FROM peminjaman LEFT JOIN buku ON peminjaman.id_buku = buku.id_buku;
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        | id_pinjam | tanggal_pinjam | id_anggota | id_buku | id_buku | judul_buku                     | id_rak | harga_buku |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        |         1 | 2022-03-24     |          2 |       4 |       4 | accounting intermediate        | P      |     105000 |
+        |         2 | 2022-10-25     |          2 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        |         3 | 2022-10-01     |          1 |       2 |       2 | How to make aesthetic painting | S      |      43000 |
+        |         4 | 2022-10-21     |          3 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        4 rows in set (0.00 sec)
+
+        mysql> SELECT * FROM buku LEFT JOIN rak ON buku.id_rak = rak.id_rak;
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        | id_buku | judul_buku                     | id_rak | harga_buku | id_rak | nama_rak   | lokasi             |
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        |       1 | Udah Putusin Aja               | H      |      55000 | H      | Hiburan    | Baris 5 Tenggara   |
+        |       2 | How to make aesthetic painting | S      |      43000 | S      | Seni       | Baris 4 Barat Laut |
+        |       3 | How to make gorgeous art       | S      |      67000 | S      | Seni       | Baris 4 Barat Laut |
+        |       4 | accounting intermediate        | P      |     105000 | P      | Pendidikan | Baris 1 Timur Laut |
+        +---------+--------------------------------+--------+------------+--------+------------+--------------------+
+        4 rows in set (0.00 sec)
+
+        mysql> SELECT * FROM rak LEFT JOIN buku ON buku.id_rak = rak.id_rak;
+        +--------+------------+--------------------+---------+--------------------------------+--------+------------+
+        | id_rak | nama_rak   | lokasi             | id_buku | judul_buku                     | id_rak | harga_buku |
+        +--------+------------+--------------------+---------+--------------------------------+--------+------------+
+        | H      | Hiburan    | Baris 5 Tenggara   |       1 | Udah Putusin Aja               | H      |      55000 |
+        | S      | Seni       | Baris 4 Barat Laut |       3 | How to make gorgeous art       | S      |      67000 |
+        | S      | Seni       | Baris 4 Barat Laut |       2 | How to make aesthetic painting | S      |      43000 |
+        | P      | Pendidikan | Baris 1 Timur Laut |       4 | accounting intermediate        | P      |     105000 |
+        +--------+------------+--------------------+---------+--------------------------------+--------+------------+
+        4 rows in set (0.00 sec)
+        ```
+
+    - **Right Join**, semua record data dari entity/tabel disisi kanan JOIN yang akan dipilih, jika record dari tabel kanan tidak punya record cocok maka tabel join kiri, tetap ada namun data nya null.
+
+        ```
+        mysql> SELECT * FROM peminjaman RIGHT JOIN buku ON peminjaman.id_buku = buku.id_buku;
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        | id_pinjam | tanggal_pinjam | id_anggota | id_buku | id_buku | judul_buku                     | id_rak | harga_buku |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        |      NULL | NULL           |       NULL |    NULL |       1 | Udah Putusin Aja               | H      |      55000 |
+        |         3 | 2022-10-01     |          1 |       2 |       2 | How to make aesthetic painting | S      |      43000 |
+        |         4 | 2022-10-21     |          3 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        |         2 | 2022-10-25     |          2 |       3 |       3 | How to make gorgeous art       | S      |      67000 |
+        |         1 | 2022-03-24     |          2 |       4 |       4 | accounting intermediate        | P      |     105000 |
+        +-----------+----------------+------------+---------+---------+--------------------------------+--------+------------+
+        5 rows in set (0.05 sec)
+
+        mysql> SELECT * FROM peminjaman RIGHT JOIN anggota ON peminjaman.id_anggota = anggota.id_anggota;
+        +-----------+----------------+------------+---------+------------+------------------+
+        | id_pinjam | tanggal_pinjam | id_anggota | id_buku | id_anggota | nama_anggota     |
+        +-----------+----------------+------------+---------+------------+------------------+
+        |         3 | 2022-10-01     |          1 |       2 |          1 | jasmine hertiana |
+        |         2 | 2022-10-25     |          2 |       3 |          2 | atika dwi        |
+        |         1 | 2022-03-24     |          2 |       4 |          2 | atika dwi        |
+        |         4 | 2022-10-21     |          3 |       3 |          3 | regy aprilia     |
+        |      NULL | NULL           |       NULL |    NULL |          4 | randomi personi  |
+        +-----------+----------------+------------+---------+------------+------------------+
+        5 rows in set (0.00 sec)
+        ```
+
+- ### **Aggregate Functions**
+    ambil suatu nilai pada suatu pengkodisian setelah adanya perhitungan set value atau kumpulan nilai/data.
+
+    - **MAX**, nilai terbesar dari atribut/field/kolom yang dipilih.
+    
+        ```
+        mysql> SELECT * FROM buku;
+        +---------+--------------------------------+--------+------------+
+        | id_buku | judul_buku                     | id_rak | harga_buku |
+        +---------+--------------------------------+--------+------------+
+        |       1 | Udah Putusin Aja               | H      |      55000 |
+        |       2 | How to make aesthetic painting | S      |      43000 |
+        |       3 | How to make gorgeous art       | S      |      67000 |
+        |       4 | accounting intermediate        | P      |     105000 |
+        +---------+--------------------------------+--------+------------+
+        4 rows in set (0.00 sec)
+
+        mysql> SELECT MAX(harga_buku) FROM buku WHERE id_rak = 'S';
+        +-----------------+
+        | MAX(harga_buku) |
+        +-----------------+
+        |           67000 |
+        +-----------------+
+        1 row in set (0.00 sec)
+        ```
+
+    - **MIN**, nilai terkecil dari atribut/field/kolom yang dipilih.
+
+        ```
+        mysql> SELECT MIN(harga_buku) FROM buku WHERE id_rak = 'S';
+        +-----------------+
+        | MIN(harga_buku) |
+        +-----------------+
+        |           43000 |
+        +-----------------+
+        1 row in set (0.00 sec)
+        ```
+
+    - **SUM**, jumlah total dari kolom bentuk dan secara numerik.
+    
+        ```
+        mysql> SELECT SUM(harga_buku) FROM buku WHERE id_rak = 'S';
+        +-----------------+
+        | SUM(harga_buku) |
+        +-----------------+
+        |          110000 |
+        +-----------------+
+        1 row in set (0.04 sec)
+        ```
+        
+    - **COUNT**, jumlah baris yang cocok dengan pengkondisian atau kriteria tertentu
+    
+        ```
+        mysql> SELECT COUNT(id_buku) FROM buku WHERE harga_buku > 50000;
+        +----------------+
+        | COUNT(id_buku) |
+        +----------------+
+        |              3 |
+        +----------------+
+        1 row in set (0.00 sec)
+        ```
+        
+    - **AVG**, nilai rata-rata dari kolom bentuk dan secara numerik.
+        
+        ```
+        mysql> SELECT AVG(harga_buku) FROM buku WHERE id_rak = 'S';
+        +-----------------+
+        | AVG(harga_buku) |
+        +-----------------+
+        |      55000.0000 |
+        +-----------------+
+        1 row in set (0.01 sec)
+        ```
+        
+- ### **UNION**
+    penggabungan set value dari dua atau lebih SELECT statement, tabel-tabel yang memiliki jumlah kolom yang sama dan kolom dengan tipe data yang sama serta urutan yang sama
+
+    ```
+    mysql> SELECT lokasi FROM rak UNION SELECT lokasi FROM anggota;
+    +--------------------+
+    | lokasi             |
+    +--------------------+
+    | Baris 5 Tenggara   |
+    | Baris 4 Barat Laut |
+    | Baris 1 Timur Laut |
+    | Tambun             |
+    | Griya asri         |
+    | Jalan aries        |
+    | Planet Bekasi      |
+    +--------------------+
+    7 rows in set (0.05 sec)
+    ```
+
+- ### **GROUP BY**
+    pengelompokan records yang memiliki value yang sama ke sebuah record yang lebih ringkas, digunakan untuk mengelompokan set value dengan satu atau lebih atribut (fungsi agregat).
+
+    ```
+    mysql> SELECT COUNT(id_rak), id_rak FROM buku GROUP BY id_rak;
+    +---------------+--------+
+    | COUNT(id_rak) | id_rak |
+    +---------------+--------+
+    |             1 | H      |
+    |             2 | S      |
+    |             1 | P      |
+    +---------------+--------+
+    3 rows in set (0.00 sec)
+    ```
+
+- ### **HAVING**
+    menggunakan kata kunci WHERE yang tidak digunakan dalam fungsi agregat
+
+    ```
+    mysql> SELECT id_buku, COUNT(id_pinjam)
+        -> FROM peminjaman
+        -> GROUP BY id_buku
+        -> HAVING COUNT(id_buku)> 1 ;
+    +---------+------------------+
+    | id_buku | COUNT(id_pinjam) |
+    +---------+------------------+
+    |       3 |                2 |
+    +---------+------------------+
+    1 row in set (0.00 sec)
+    ```
+
+- ### **LIKE & Wildcards**
+    LIKE merupakan operator yang ada pada pengkondisian WHERE untuk mencari pola tertentu pada suatu record dalam atribut tertentu. WILDCARD menggantikan satu atau beberapa karakter dalam bentuk string.
+
+    - **% Wildcards**, karakter %. apabila % didepan karakter, maka tampil data yang query value terakhir. apabila % dibelakang karakter, maka tampil data yang query paling depan. apabila % didepan dan belakang karakter, maka tampil data yang mengandung karakter itu ditengah.
+
+        ```
+        mysql> SELECT nama_anggota FROM anggota WHERE nama_anggota LIKE '%mi%' OR '%ni%';
+        +------------------+
+        | nama_anggota     |
+        +------------------+
+        | jasmine hertiana |
+        | randomi personi  |
+        +------------------+
+        2 rows in set, 1 warning (0.06 sec)
+
+        mysql> SELECT judul_buku FROM buku WHERE judul_buku LIKE 'How%';
+        +--------------------------------+
+        | judul_buku                     |
+        +--------------------------------+
+        | How to make aesthetic painting |
+        | How to make gorgeous art       |
+        +--------------------------------+
+        2 rows in set (0.00 sec)
+        ```
+
+    - **_ Wildcards**, mewakili suatu karakter
+
+        ```
+        mysql> SELECT judul_buku FROM buku WHERE judul_buku LIKE '%_ow to%';
+        +--------------------------------+
+        | judul_buku                     |
+        +--------------------------------+
+        | How to make aesthetic painting |
+        | How to make gorgeous art       |
+        +--------------------------------+
+        2 rows in set (0.00 sec)
+        ```
 
 
