@@ -639,4 +639,301 @@ mysql> select * from peminjaman;
         2 rows in set (0.00 sec)
         ```
 
+&nbsp;
+
+## **Authentication & Authorization (Express JS Middleware)**
+
+### **Authentication**
+<div align='justify'>pemrosesan user baik melalui akses komputer, jaringan maupun secara jarak jauh/remote dalam mendapatkan hak akses terhadap suatu jaringan maupun entity, dalam konteksnya website. user login ke sebuah infrastruktur atau jaringan, lalu sistem mengenali/ mendeteksi user ID dan acc/ terima user tsb serta memberikan akses terhadap sumber daya jaringan sesuai authorization yang dimiliki user itu.
+
+- Metode authentication yang berbasis pada 
+**kerahasiaan informasi (Knowledge)** :
+    - Password/PIN 
+    - Digital Certificate : asymmentric cryptography based mengandung informasi rahasia
+    - Private key : Owner yang tahu, user biasa lain hanya tahu Public Key
+- Metode authentication yang berbasis pada 
+**keunikan (Inherence)** :
+    - Retina 
+    - Fingerprint
+    - foto paspor
+    - Tandatangan
+    - Voice patterns
+- Metode authentication yang berbasis pada 
+**user miliki (Posession)** :
+    - Phone
+    - Smart Card
+- **Session Based Authentication**, server membuat session untuk user setelah user login. session id akan disimpan dalam cookie pada browser yang digunakan user. selama user teap dalam keadaan log in, cookie dapat dikirim pada setiap request yang dilakukan user. lalu server melakukan perbandingan dengan session id yang disimpan pada cookie dengan informasi session yang disimpan pada memory untuk memverifikasi identitas user dan mengembalikan respon sesuai dengan status response.
+- **Token Based Authentication**, menggunakan JSON Web Token (JWT) dibanding session untuk authentication. pada token based app, server akan membuat JWT dengan rahasia dan mengirim JWT kepada client. Client kemudian menyimpan JWT (biasanya pada local storage) dan memasukkan JWT kedalam headers untuk setiap request yang dilakukan client. server akan memvalidasi JWT pada setiap request client dan mengembalikan response. Perbedaannya, user's state tidak disimpan dalam server, tetapi disimpan dalam token client side. modern web app banyak yang sudah menggunakan JWT untuk authentication proses dengan alasan skalanya (scalability) serta authentication untuk mobile.
+
+### **Authorization**
+<div align='justify'> disini user ditentukan apakah diizinkan / ditolak untuk mengakses atau membuat request serta action lainnya terhadap suatu resources infrastruktur tertentu dalam sistem atau jaringan. setelah authentication dimana user login sistem dengan id dan password, kemudian sistem mengenali dan mengeksekusi user untuk mendapatkan akses maupun ditolak terhadap suatu infrastruktur resource sistem. Jadi tanpa authentication tidak ada authorization. namun beberapa sistem ada yang menerapkan pengguna yang tidak ter-otentikasi (anonymous guest) tetap dapat menikmati service sistem tertentu dengan akses sangat terbatas.
+
+- Client sebelum bisa menikmati layanan server 
+harus melalui proses authentication
+- Setelah authentication berhasil akan terjalin hubungan trust antara client dan server (1 x authentication) kecuali logout. 
+- Apabila ada service request, server akan menghubungi system authorization untuk menentukan apakah client berhak atas service yang di request
+
+### **Encryption**
+<div align='justify'>Proses penyandian teks sederhanan dan penyandian informasi lain yang dapat diakses oleh satu-satunya entitas yang berwenang jika memiliki decrypt key. Data yg belum dienkripsi dikenal sebagai teks biasa sementara mengenkripsi data dikenal dengan teks sandi.Enkripsi meningkatkan keamanan saat mengirim pesan melalui internet atau jaringan tertentu. pesan terenkripsi tidak dapat dibaca atau diubah oleh orang laim. proses enkripsi juga melibatkan proses authentication yakni memudahkan proses pelacakan asal pesan .Ada 3 bentuk umum fungsi enkripsi :
+
+1. **Simetris**, menggunakan private key yang sama untuk melakukan proses enkripsi dan deskripsi teks maupun pesan. private key dapat berupa kata, angka atau serangkaian random huruf.
+2. **Asimetris**, menggunakan dua kunci yg berbeda dalam proses enkripsi dan deskripsi yaitu public key dan private key. public key digunakan oleh banyak user sedangkan private key hanya diketahui oleh penerima. public key digunakan untuk melakukan proses enkripsi sedangkan private key digunakan untuk mendekripsi
+3. **Hybrid**, memadukan simetris dan asimetris. mengambil advantage dari keduanya dan meminimalkan kelemahan kedua jenis tsb.
+
+```javascript
+//Checking the crypto module
+const crypto = require('crypto');
+const algorithm = 'aes-256-cbc'; //Using AES encryption
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
+
+//Encrypting text
+function encrypt(text) {
+   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+   let encrypted = cipher.update(text);
+   encrypted = Buffer.concat([encrypted, cipher.final()]);
+   return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+}
+
+// Decrypting text
+function decrypt(text) {
+   let iv = Buffer.from(text.iv, 'hex');
+   let encryptedText = Buffer.from(text.encryptedData, 'hex');
+   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+   let decrypted = decipher.update(encryptedText);
+   decrypted = Buffer.concat([decrypted, decipher.final()]);
+   return decrypted.toString();
+}
+
+// Text send to encrypt function
+var hw = encrypt("Hi im jasmine...")
+console.log(hw)
+console.log(decrypt(hw))
+```
+
+```
+output :
+
+C:\Users\jasmine-hertiana>> node encrypt.js
+{ iv: '61add9b0068d5d85e940ff3bba0a00e6', encryptedData:
+'787ff81611b84c9ab2a55aa45e3c1d3e824e3ff583b0cb75c20b8947a4130d16' }
+//Encrypted text
+Hi im jasminee... //Decrypted text
+```
+
+### **Hashing**
+<div align= 'justify'> Pada prinsipnya hashing mengambil input komunikasi dan menghasilkan string dengan panjang yang tetap. Algoritma hash merupakan fungsi yang dapat digunakan untuk memetakan data dari yang bersifat acak menjadi data ukuran tetap. Nilai hash, kode hash, julah hash akan dikembalikan selama fungsi hash berlangsung. Hashing digunakan unuk menghasilkan string acak untuk menghindari duplikasi data yang disimpan dalam database. hashing dapat digunakan untuk simpan password, untuk mempersulit peretasan dan pembalikkan pada mereka yg memiliki data mentah
+
+- **Perbedaan Hashing dan Encryption**, enkripsi adalah fungsi dua arah yang mencakup enkripsi dan dekripsi sementara hashing adalah fungsi satu arah yang mengubah teks biasa menjadi intisari unik yang tidak dapat dipulihkan.
+
+```javascript
+// crypto.createHash() demo example
+
+// Importing crypto module
+const crypto = require('crypto');
+
+// Deffining the secret key
+const secret = 'JasmTiana';
+
+// Initializing the createHash method using secret
+const hashValue = crypto.createHash('sha256', secret)
+
+   // Data to be encoded
+   .update('Hi JasmTiana !')
+
+   // Defining encoding type
+   .digest('hex');
+// Printing the output
+console.log("Hash Obtained is: ", hashValue);
+```
+
+```
+output :
+
+C:\Users\jasmine-hertiana>> node createHash.js
+Hash Obtained is:
+5f55ecb1ca233d41dffb6fd9e307d37b9eb4dad472a9e7767e8727132b784461
+```
+
+### **Authentication & Authorization using JWT**
+
+```javascript
+// FILE app.js
+var express = require("express"),
+  router = express.Router(),
+  verifyToken = require('../middlewares/authJWT'),
+  {
+    signup,
+    signin
+  } = require("../controllers/auth.controller.js");
+
+router.post("/register", signup, function (req, res) {
+
+});
+
+router.post("/login", signin, function (req, res) {
+
+});
+
+router.get("/hiddencontent", verifyToken, function (req, res) {
+  if (!user) {
+    res.status(403)
+      .send({
+        message: "Invalid JWT token"
+      });
+  }
+  if (req.user == "admin") {
+    res.status(200)
+      .send({
+        message: "Congratulations! but there is no hidden content"
+      });
+  } else {
+    res.status(403)
+      .send({
+        message: "Unauthorised access"
+      });
+  }
+});
+
+module.exports = router;
+
+
+// ------------------------------------------------------
+// FILE auth.controller.js
+var jwt = require("jsonwebtoken");
+var bcrypt = require("bcrypt");
+var User = require("../models/user");
+
+exports.signup = (req, res) => {
+  const user = new User({
+    fullName: req.body.fullName,
+    email: req.body.email,
+    role: req.body.role,
+    password: bcrypt.hashSync(req.body.password, 8)
+  });
+
+  user.save((err, user) => {
+    if (err) {
+      res.status(500)
+        .send({
+          message: err
+        });
+      return;
+    } else {
+      res.status(200)
+        .send({
+          message: "User Registered successfully"
+        })
+    }
+  });
+};
+
+exports.signin = (req, res) => {
+  User.findOne({
+      email: req.body.email
+    })
+    .exec((err, user) => {
+      if (err) {
+        res.status(500)
+          .send({
+            message: err
+          });
+        return;
+      }
+      if (!user) {
+        return res.status(404)
+          .send({
+            message: "User Not found."
+          });
+      }
+
+      //comparing passwords
+      var passwordIsValid = bcrypt.compareSync(
+        req.body.password,
+        user.password
+      );
+      // checking if password was valid and send response accordingly
+      if (!passwordIsValid) {
+        return res.status(401)
+          .send({
+            accessToken: null,
+            message: "Invalid Password!"
+          });
+      }
+      //signing token with user id
+      var token = jwt.sign({
+        id: user.id
+      }, process.env.API_SECRET, {
+        expiresIn: 86400
+      });
+
+      //responding to client request with user profile success message and  access token .
+      res.status(200)
+        .send({
+          user: {
+            id: user._id,
+            email: user.email,
+            fullName: user.fullName,
+          },
+          message: "Login successfull",
+          accessToken: token,
+        });
+    });
+};
+
+
+// ------------------------------------------------------
+// FILE routes/user.
+var express = require("express"),
+  router = express.Router(),
+  {
+    signup,
+    signin
+  } = require("../controllers/auth.controller.js");
+
+router.post("/register", signup, function (req, res) {
+
+});
+
+router.post("/login", signin, function (req, res) {
+
+});
+
+module.exports = router;
+
+
+// ------------------------------------------------------
+// FILE authJWT.js
+const jwt = require("jsonwebtoken");
+User = require("../models/user");
+
+const verifyToken = (req, res, next) => {
+  if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
+    jwt.verify(req.headers.authorization.split(' ')[1], process.env.API_SECRET, function (err, decode) {
+      if (err) req.user = undefined;
+      User.findOne({
+          _id: decode.id
+        })
+        .exec((err, user) => {
+          if (err) {
+            res.status(500)
+              .send({
+                message: err
+              });
+          } else {
+            req.user = user;
+            next();
+          }
+        })
+    });
+  } else {
+    req.user = undefined;
+    next();
+  }
+};
+module.exports = verifyToken;
+```
+
+- ![auth-login](./img-src/auth-login.png)
+- ![auth-response](./img-src/auth-response.png)
 
