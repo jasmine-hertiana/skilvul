@@ -935,5 +935,112 @@ module.exports = verifyToken;
 ```
 
 - ![auth-login](./img-src/auth-login.png)
-- ![auth-response](./img-src/auth-response.png)
+- ![auth-response](./img-src/auth-response.png )
 
+
+&nbsp;
+
+## **Sequelize**
+<div align='justify'> adalah ORM (Object Relational Mapping) pada node JS dan juga typescript dengan promise based. Yang support dan compatible dengan kebanyakan RDBMS dengan SQL based seperti : 
+- MySQL, 
+- PostgreSQL, 
+- MariaDB, 
+- SQLite, 
+- Microsoft SQL Server
+Dengan package sequeliza beserta fitur-fiturnya dapat membantu dalam mengatur dan pengelolaan data di database secara efektif dan efisien.
+
+### **ORM (Object Relational Mapping)**
+<div align='justify'>teknik mengubah suatu tabel/entity menjadi sebuah object yang nantinya mudah untuk digunakan. Object yang dibuat memiliki property yang sama dengan fiel-field yang ada pada tabel/entity tsb. ORM memungkinkan untuk melakukan query dan manipulasi data pada database menggunakan object oriented.
+
+- **Tujuan**, mempermudah mengakses database tanpa melakukan query sama sekali
+- **Cara Kerja**, awalnya perlu mendefinisikan suatu object. Lalu buat field - field pada object sesuai dengan field-field pada tabel di database, selanjutnya object tsb dapat digunakan untuk melakukan CRUD tanpa menggunakan query.
+- **Kelebihan**
+  - Terdapat banyak fitur seperti transactions, connection pooling, migrations, seeds, streams, dll.
+  - perintah query memiliki kinerja yang lebih baik, daripada menulisnya secara manual.
+  - menulis model data hanya di satu tempat, sehingga lebih mudah untuk update, maintain, dan reuse the code.
+  - membuat akses data menjadi lebih abstrak dan portable.
+  - memungkinkan untuk memanfaatkan OOP dengan baik.
+- **Kekurangan**
+  - menggunakan query SQL sendiri lebih baik apabila ada project besar.
+  - konfigurasi awal ORM dapat menjadi sulit. Maka diperlukan untuk mempelajarinya terlebih dahulu sebelum menggunakannya.
+
+install sequelize
+
+```
+>> npm install sequelize
+```
+
+konfigurasi database (file database.js)
+
+```javascript
+const Sequelize = require('sequelize')
+const sequelize = new Sequelize(
+   'YOUR_DB_NAME', 
+   'YOUR_DB_USER_NAME', 
+   'YOUR_DB_PASSWORD',{
+      dialect: 'mysql',
+      host: 'localhost'
+   }
+);
+module.exports = sequelize
+```
+
+konfigurasi file user.js
+
+```javascript
+const Sequelize = require('sequelize')
+const sequelize = require('../utils/database')
+const User = sequelize.define('user', {
+   // Name of Column #1 and its properties defined: id
+   user_id:{
+
+      // Integer Datatype
+      type:Sequelize.INTEGER,
+
+      // Increment the value automatically
+      autoIncrement:true,
+
+      // user_id can not be null.
+      allowNull:false,
+
+      // To uniquely identify user
+      primaryKey:true
+   },
+
+   // Name of Column #2: name
+   name: { type: Sequelize.STRING, allowNull:false },
+
+   // Name of Column #3: email
+   email: { type: Sequelize.STRING, allowNull:false },
+
+   // Column: Timestamps
+   createdAt: Sequelize.DATE,
+   updatedAt: Sequelize.DATE,
+})
+module.exports = User
+```
+
+konfigurasi file app.js
+
+```javascript
+// Importing the database model
+const sequelize = require('./database')
+
+// Importing the user model
+const User = require('./user')
+
+// Creating all the tables defined in user
+sequelize.sync()
+
+// You can change the user.js file
+// And run this code to check if it overwrites the existing code.
+sequelize.sync(force:true)
+```
+
+output
+
+```javascript
+C:\Users\SequelizeDemo>> node app.js
+Executing (default): CREATE TABLE IF NOT EXISTS `users` (`user_id` INTEGER NOT NULL auto_increment , `name` VARCHAR(255) NOT NULL, `email` VARCHAR(255) NOT NULL, `createdAt` DATETIME, `updatedAt` DATETIME, PRIMARY KEY (`user_id`)) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `users`
+```
