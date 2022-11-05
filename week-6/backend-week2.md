@@ -952,6 +952,8 @@ Dengan package sequeliza beserta fitur-fiturnya dapat membantu dalam mengatur da
 ### **ORM (Object Relational Mapping)**
 <div align='justify'>teknik mengubah suatu tabel/entity menjadi sebuah object yang nantinya mudah untuk digunakan. Object yang dibuat memiliki property yang sama dengan fiel-field yang ada pada tabel/entity tsb. ORM memungkinkan untuk melakukan query dan manipulasi data pada database menggunakan object oriented.
 
+![orm](./img-src/orm.jpeg)
+
 - **Tujuan**, mempermudah mengakses database tanpa melakukan query sama sekali
 - **Cara Kerja**, awalnya perlu mendefinisikan suatu object. Lalu buat field - field pada object sesuai dengan field-field pada tabel di database, selanjutnya object tsb dapat digunakan untuk melakukan CRUD tanpa menggunakan query.
 - **Kelebihan**
