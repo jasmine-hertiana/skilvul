@@ -606,3 +606,45 @@ container bisa digunakan sebagai alternatif virtualisasi sehingga tidak perlu me
     4. `docker-compose logs` : command ini penting jika ingin melihat apa yg terjadi pada service tertentu saat dijalankan dalam container. Biasa digunakan untuk mendeteksi error atau melihat kondisi/respon yang terjadi pada service tertentu.
 
     5. `docker-compose config` : digunakan untuk mengecek apakah script yang ada pada file docker-compose.yml yang telah buat sudah valid atau sudah sesuai dengan referensi dari docker-compose. Output dari command ini akan memberikan pesan error (jika error) atau jika berhasil hanya menampilkan print out semua script yg ada di docker-compose.yml.
+
+&nbsp;
+
+## **Testing API with Postman**
+<div align= 'justify'>sebuah aplikasi yang berfungsi sebagai REST Client untuk uji coba REST API. Postman biasa digunakan oleh developer pembuat API sebagai tools untuk menguji API yang telah mereka buat. Postman merupakan tool untuk melakukan proses development API, untuk saat ini sudah banyak fitur-fitur yang sangat membantu dalam proses development API, diantaranya :
+
+1. **Collection**, Pengelompokan request API yang bisa disimpan atau diatur dalam bentuk folder. Memudahkan untuk pengelompokan request sesuai dengan proyek yang di kerjakan.
+2. **Environment**, Semacam config untuk menyimpan attribute dan attribute tersebut dapat digunakan ataupun dimanipulasi dalam proses request API.
+3. **Response**, Developer dapat membuat Mockup API sebelum benar-benar mengimplementasikan ke dalam proyek.
+4. **Mock Server**, Dengan fitur ini, Mockup API yang dibuat menggunakan fitur “example response” dapat diakses dari internet layaknya Mockup API tersebut sudah di implementasikan dan di deploy ke server.
+5. **Script Test**, Fitur untuk melakukan validasi respon, termasuk di dalamnya menuliskan test sesuai dengan kebutuhan.
+6. **Automated Test (Runner)**, Menjalakan request dalam satu collection secara otomatis, dengan menggunakan script test.
+
+### **Testing API & Documentation**
+<div align="justify">Misal sudah ada endpoint untuk melaksanakan proses crud seperti berikut pada express:
+```javascript
+app.get('/todo', getAllTodos);
+app.get('/todo/:id', getTodoById);
+app.post('/todo/save', addTodos);
+app.put('/todo/:id/update', updateTodos);
+app.delete('/todo/:id/delete', deleteTodos);
+```
+
+1. **Menampilkan Seluruh Data**
+
+    ![get-all-todos](./img-src/get-all-todos.png)
+
+2. **Menampilkan Data Dengan ID Tertentu**
+
+    ![get-id-todo](./img-src/get-id-todo.png)
+
+3. **Menambahkan Data**
+
+    ![add-todos](./img-src/add-todos.png)
+
+4. **Memperbaharui Data**
+
+    ![update-todos](./img-src/update-todos.png)
+
+5. **Menghapus Data**
+
+    ![delete-todos](./img-src/delete-todos.png)
